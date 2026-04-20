@@ -48,43 +48,71 @@ export default function Home() {
     setResult(null);
 
     try {
-      // For sample images, just display them (no backend needed)
+      // For sample images, fetch and send to backend for analysis
       if (typeof file === "string") {
-        // Sample image - just show it
         const response = await fetch(file);
         const blob = await response.blob();
         
-        // Convert to base64 for display
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64 = reader.result as string;
-          const base64Data = base64.split(',')[1];
-          
-          // Show image without analysis (no backend)
-          setResult({
-            success: true,
-            original_image: base64Data,
-            ndvi_image: base64Data,
-            health: {
-              score: 0,
-              status: "Display Only",
-              message: "Image displayed successfully. For AI analysis, run the backend server locally (see documentation).",
-              color: "gray",
-              zones: {
-                healthy: 0,
-                moderate: 0,
-                stressed: 0
-              }
-            },
-            model_info: {
-              name: "Frontend Only Mode",
-              accuracy: "Backend required for analysis",
-              trained_on: "Run ./start_simple.sh locally"
-            }
+        // Convert blob to File object
+        const imageFile = new File([blob], "sample.png", { type: "image/png" });
+        
+        // Send to backend for analysis
+        const form = new FormData();
+        form.append("file", imageFile);
+        
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        
+        try {
+          const res = await fetch(`${apiUrl}/analyze`, {
+            method: "POST",
+            body: form,
           });
-          setLoading(false);
-        };
-        reader.readAsDataURL(blob);
+          
+          if (!res.ok) {
+            throw new Error(`API error: ${res.status}`);
+          }
+          
+          const data = await res.json();
+          
+          if (data.success) {
+            setResult(data);
+          } else {
+            setError(data.error || "Analysis failed");
+          }
+        } catch (apiError) {
+          // Backend not available - just display the image
+          console.log("Backend not available, displaying image only");
+          
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64 = reader.result as string;
+            const base64Data = base64.split(',')[1];
+            
+            setResult({
+              success: true,
+              original_image: base64Data,
+              ndvi_image: base64Data,
+              health: {
+                score: 0,
+                status: "Display Only",
+                message: "Backend not available. Image displayed without analysis.",
+                color: "gray",
+                zones: {
+                  healthy: 0,
+                  moderate: 0,
+                  stressed: 0
+                }
+              },
+              model_info: {
+                name: "Frontend Only Mode",
+                accuracy: "Backend required for analysis",
+                trained_on: "Run ./start_simple.sh locally"
+              }
+            });
+          };
+          reader.readAsDataURL(blob);
+        }
+        setLoading(false);
         return;
       }
       
