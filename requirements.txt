@@ -1,0 +1,15 @@
+# PyTorch for M1 Mac with MPS (Metal Performance Shaders) support
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Image processing libraries
+numpy>=1.24.0
+Pillow>=10.0.0
+opencv-python>=4.8.0
+
+# Visualization and progress tracking
+matplotlib>=3.7.0
+tqdm>=4.65.0
+
+# Web interface for testing
+streamlit>=1.28.0
