@@ -201,17 +201,21 @@ export default function Home() {
                 🎮 Try Sample Images
               </h2>
               <p className="text-gray-400">
-                Select one of our sample satellite images to see NDVI.AI in action instantly!
+                Drag and drop any sample image to the analysis zone below, or click to analyze instantly!
               </p>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {SAMPLE_IMAGES.map((sample) => (
-                <button
+                <div
                   key={sample.id}
-                  onClick={() => analyzeImage(sample.file)}
-                  disabled={loading}
-                  className="group bg-gradient-to-br from-slate-900/80 to-blue-900/40 border-2 border-gray-800 hover:border-green-500 rounded-2xl p-4 transition-all hover:scale-105 hover:shadow-xl hover:shadow-green-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                  draggable={!loading}
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData("sample", sample.file);
+                    e.dataTransfer.effectAllowed = "copy";
+                  }}
+                  onClick={() => !loading && analyzeImage(sample.file)}
+                  className="group bg-gradient-to-br from-slate-900/80 to-blue-900/40 border-2 border-gray-800 hover:border-green-500 rounded-2xl p-4 transition-all hover:scale-105 hover:shadow-xl hover:shadow-green-500/20 cursor-move disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <div className="text-4xl mb-3">{sample.emoji}</div>
                   <p className="text-sm font-semibold text-white mb-1">
@@ -219,10 +223,49 @@ export default function Home() {
                   </p>
                   <p className="text-xs text-gray-400">{sample.name}</p>
                   <div className="mt-3 text-xs text-green-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                    Click to analyze →
+                    Drag or click to analyze →
                   </div>
-                </button>
+                </div>
               ))}
+            </div>
+
+            {/* Drop Zone for Samples */}
+            <div
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.currentTarget.classList.add("border-green-400", "bg-green-950/30");
+              }}
+              onDragLeave={(e) => {
+                e.currentTarget.classList.remove("border-green-400", "bg-green-950/30");
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                e.currentTarget.classList.remove("border-green-400", "bg-green-950/30");
+                const sampleFile = e.dataTransfer.getData("sample");
+                if (sampleFile && !loading) {
+                  analyzeImage(sampleFile);
+                }
+              }}
+              className="border-2 border-dashed border-gray-700 rounded-2xl p-12 text-center transition-all duration-200"
+            >
+              {loading ? (
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
+                  <p className="text-gray-400">🧠 AI is analyzing crop health...</p>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-900 to-emerald-900 rounded-2xl flex items-center justify-center text-3xl">
+                    🎯
+                  </div>
+                  <p className="text-white font-medium">
+                    Drop a sample image here to analyze
+                  </p>
+                  <p className="text-gray-500 text-sm">
+                    Or click any sample card above for instant analysis
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
