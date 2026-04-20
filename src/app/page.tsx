@@ -49,40 +49,105 @@ export default function Home() {
     setResult(null);
 
     try {
-      const form = new FormData();
-      
+      // For sample images, just display them (no backend needed)
       if (typeof file === "string") {
-        // Sample image - fetch from API and convert to File
+        // Sample image - just show it
         const response = await fetch(file);
         const blob = await response.blob();
-        const fileName = `sample_${file.split('/').pop()}.png`;
-        const imageFile = new File([blob], fileName, { type: 'image/png' });
-        form.append("file", imageFile);
-      } else {
-        // User uploaded file
-        form.append("file", file);
+        
+        // Convert to base64 for display
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64 = reader.result as string;
+          const base64Data = base64.split(',')[1];
+          
+          // Show image without analysis (no backend)
+          setResult({
+            success: true,
+            original_image: base64Data,
+            ndvi_image: base64Data,
+            health: {
+              score: 0,
+              status: "Display Only",
+              message: "Image displayed successfully. For AI analysis, run the backend server locally (see documentation).",
+              color: "gray",
+              zones: {
+                healthy: 0,
+                moderate: 0,
+                stressed: 0
+              }
+            },
+            model_info: {
+              name: "Frontend Only Mode",
+              accuracy: "Backend required for analysis",
+              trained_on: "Run ./start_simple.sh locally"
+            }
+          });
+          setLoading(false);
+        };
+        reader.readAsDataURL(blob);
+        return;
       }
+      
+      // For uploaded files, try backend if available, otherwise just display
+      const form = new FormData();
+      form.append("file", file);
       
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      const res = await fetch(`${apiUrl}/analyze`, {
-        method: "POST",
-        body: form,
-      });
       
-      if (!res.ok) {
-        throw new Error(`API error: ${res.status}`);
-      }
-      
-      const data = await res.json();
-      
-      if (data.success) {
-        setResult(data);
-      } else {
-        setError(data.error || "Analysis failed");
+      try {
+        const res = await fetch(`${apiUrl}/analyze`, {
+          method: "POST",
+          body: form,
+        });
+        
+        if (!res.ok) {
+          throw new Error(`API error: ${res.status}`);
+        }
+        
+        const data = await res.json();
+        
+        if (data.success) {
+          setResult(data);
+        } else {
+          setError(data.error || "Analysis failed");
+        }
+      } catch (apiError) {
+        // Backend not available - just display the image
+        console.log("Backend not available, displaying image only");
+        
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64 = reader.result as string;
+          const base64Data = base64.split(',')[1];
+          
+          setResult({
+            success: true,
+            original_image: base64Data,
+            ndvi_image: base64Data,
+            health: {
+              score: 0,
+              status: "Display Only",
+              message: "Image displayed successfully. Backend server not available. For AI analysis, run ./start_simple.sh locally.",
+              color: "gray",
+              zones: {
+                healthy: 0,
+                moderate: 0,
+                stressed: 0
+              }
+            },
+            model_info: {
+              name: "Frontend Only Mode",
+              accuracy: "Backend required for analysis",
+              trained_on: "See documentation for setup"
+            }
+          });
+        };
+        reader.readAsDataURL(file);
       }
     } catch (err) {
       console.error("Analysis error:", err);
-      setError("Cannot connect to server. Make sure the image server is running on port 8000.");
+      setError("Failed to process image. For full functionality, run the backend server locally.");
     } finally {
       setLoading(false);
     }
@@ -141,9 +206,9 @@ export default function Home() {
               <p className="text-xs text-gray-400">Crop Health Intelligence</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-            <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-            <span className="text-xs text-emerald-400 font-medium">AI Active</span>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/20">
+            <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse" />
+            <span className="text-xs text-yellow-400 font-medium">Demo Mode - Run locally for AI</span>
           </div>
         </div>
       </header>
@@ -151,6 +216,17 @@ export default function Home() {
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-6">
         <div className="max-w-7xl mx-auto text-center">
+          {/* Info Banner */}
+          <div className="mb-8 p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl max-w-4xl mx-auto">
+            <p className="text-blue-400 text-sm">
+              <strong>ℹ️ Demo Mode:</strong> This is a frontend-only preview. For full AI-powered NDVI analysis, 
+              clone the repo and run <code className="bg-blue-500/20 px-2 py-1 rounded">./start_simple.sh</code> locally. 
+              <a href="https://github.com/aanandak15-maker/ndvi-frontend" target="_blank" rel="noopener noreferrer" className="underline ml-1">
+                View on GitHub →
+              </a>
+            </p>
+          </div>
+          
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-8">
             <span className="text-emerald-400 text-sm font-medium">Powered by Deep Learning</span>
           </div>
