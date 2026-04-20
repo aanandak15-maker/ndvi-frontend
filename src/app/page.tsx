@@ -206,27 +206,12 @@ export default function Home() {
               <p className="text-xs text-gray-400">Crop Health Intelligence</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/20">
-            <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse" />
-            <span className="text-xs text-yellow-400 font-medium">Demo Mode - Run locally for AI</span>
-          </div>
         </div>
       </header>
 
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-6">
         <div className="max-w-7xl mx-auto text-center">
-          {/* Info Banner */}
-          <div className="mb-8 p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl max-w-4xl mx-auto">
-            <p className="text-blue-400 text-sm">
-              <strong>ℹ️ Demo Mode:</strong> This is a frontend-only preview. For full AI-powered NDVI analysis, 
-              clone the repo and run <code className="bg-blue-500/20 px-2 py-1 rounded">./start_simple.sh</code> locally. 
-              <a href="https://github.com/aanandak15-maker/ndvi-frontend" target="_blank" rel="noopener noreferrer" className="underline ml-1">
-                View on GitHub →
-              </a>
-            </p>
-          </div>
-          
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-8">
             <span className="text-emerald-400 text-sm font-medium">Powered by Deep Learning</span>
           </div>

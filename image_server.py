@@ -13,10 +13,15 @@ from pathlib import Path
 
 app = FastAPI(title="NDVI Image Server")
 
-# Enable CORS for Next.js
+# Enable CORS for Next.js (local and production)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "https://ndvi-frontend-iota.vercel.app",
+        "https://*.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -153,12 +158,17 @@ async def analyze_image(file: UploadFile = File(...)):
 
 if __name__ == "__main__":
     import uvicorn
+    import os
+    
+    # Get port from environment (for cloud deployment) or default to 8000
+    port = int(os.environ.get("PORT", 8000))
+    
     print("🚀 Starting NDVI Image Conversion Server...")
     print("📸 Converting TIFF images to PNG on-the-fly")
-    print("🌐 Server: http://localhost:8000")
-    print("📷 Sample images: http://localhost:8000/samples/1 through /samples/5")
-    print("📤 Upload endpoint: POST http://localhost:8000/analyze")
+    print(f"🌐 Server: http://0.0.0.0:{port}")
+    print(f"📷 Sample images: http://localhost:{port}/samples/1 through /samples/5")
+    print(f"📤 Upload endpoint: POST http://localhost:{port}/analyze")
     print("")
     print("⚠️  SIMPLE MODE: No AI model loaded")
     print("   For AI-powered NDVI generation, use api_server.py")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=port)
