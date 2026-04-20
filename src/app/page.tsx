@@ -295,7 +295,6 @@ export default function Home() {
                 disabled={loading}
                 className="group relative overflow-hidden rounded-2xl transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent z-10" />
                 <img 
                   src={sample.preview} 
                   alt={sample.name}
@@ -307,12 +306,7 @@ export default function Home() {
                     }
                   }}
                 />
-                <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
-                  <p className="text-sm font-semibold text-white mb-1">{sample.name}</p>
-                  <div className="text-xs text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                    Click to analyze →
-                  </div>
-                </div>
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all z-10" />
               </button>
             ))}
           </div>
