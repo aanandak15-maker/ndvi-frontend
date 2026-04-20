@@ -41,7 +41,6 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [activeSection, setActiveSection] = useState<"playground" | "upload">("playground");
 
   const analyzeImage = async (file: File | string) => {
     setLoading(true);
@@ -100,399 +99,300 @@ export default function Home() {
   });
 
   const statusColors: Record<string, string> = {
-    green: "text-green-400",
+    green: "text-emerald-400",
     yellow: "text-yellow-400",
     red: "text-red-400",
   };
 
   const zoneBg: Record<string, string> = {
-    healthy: "bg-green-500",
+    healthy: "bg-emerald-500",
     moderate: "bg-yellow-500",
     stressed: "bg-red-500",
   };
 
   return (
-    <main className="min-h-screen text-white">
+    <main className="min-h-screen text-white overflow-hidden">
+      {/* Animated Background */}
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-slate-950 to-slate-950" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+      </div>
+
       {/* Header */}
-      <header className="border-b border-blue-900/50 bg-gradient-to-r from-blue-950/80 to-slate-950/80 backdrop-blur-sm px-8 py-6 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-slate-950/50 border-b border-white/5">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center text-xl font-bold shadow-lg shadow-green-500/30">
-              🌱
+            <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
+              <span className="text-xl">🌱</span>
             </div>
             <div>
-              <h1 className="font-bold text-2xl tracking-tight bg-gradient-to-r from-green-400 via-emerald-400 to-blue-400 bg-clip-text text-transparent">
-                NDVI.AI
-              </h1>
+              <h1 className="font-bold text-xl tracking-tight">NDVI.AI</h1>
               <p className="text-xs text-gray-400">Crop Health Intelligence</p>
             </div>
           </div>
-          <div className="flex items-center gap-6">
-            <div className="hidden md:flex items-center gap-2 text-xs text-gray-400">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              AI Model Active
-            </div>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+            <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+            <span className="text-xs text-emerald-400 font-medium">AI Active</span>
           </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        {/* Hero Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-          {[
-            { label: "Training Images", value: "2,200", icon: "📊" },
-            { label: "Model Accuracy", value: "99.2%", icon: "🎯" },
-            { label: "Data Source", value: "Sentinel-2", icon: "🛰️" },
-            { label: "Processing", value: "Real-time", icon: "⚡" },
-          ].map((stat) => (
-            <div
-              key={stat.label}
-              className="bg-gradient-to-br from-blue-900/40 to-slate-900/40 backdrop-blur-sm border border-blue-800/30 rounded-2xl p-4 text-center hover:border-blue-600/50 transition-all"
-            >
-              <div className="text-2xl mb-2">{stat.icon}</div>
-              <p className="text-2xl font-bold text-white mb-1">{stat.value}</p>
-              <p className="text-xs text-gray-400">{stat.label}</p>
-            </div>
-          ))}
+      {/* Hero Section */}
+      <section className="pt-32 pb-20 px-6">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-8">
+            <span className="text-emerald-400 text-sm font-medium">Powered by Deep Learning</span>
+          </div>
+          
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+            Transform Satellite Images
+            <br />
+            <span className="bg-gradient-to-r from-emerald-400 via-green-400 to-emerald-500 bg-clip-text text-transparent">
+              Into Crop Health Insights
+            </span>
+          </h1>
+          
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-12 leading-relaxed">
+            Advanced AI converts RGB satellite imagery into professional NDVI vegetation health maps in seconds.
+            No multispectral camera required.
+          </p>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto mb-16">
+            {[
+              { value: "2,200+", label: "Training Images" },
+              { value: "99.2%", label: "Accuracy" },
+              { value: "Sentinel-2", label: "Data Source" },
+              { value: "<2s", label: "Processing Time" },
+            ].map((stat, i) => (
+              <div key={i} className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all" />
+                <div className="relative bg-slate-900/50 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-emerald-500/30 transition-all">
+                  <p className="text-3xl font-bold text-white mb-1">{stat.value}</p>
+                  <p className="text-sm text-gray-400">{stat.label}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
+      </section>
 
-        {/* Section Tabs */}
-        <div className="flex gap-4 mb-8 border-b border-gray-800">
-          <button
-            onClick={() => setActiveSection("playground")}
-            className={`px-6 py-3 font-semibold transition-all relative ${
-              activeSection === "playground"
-                ? "text-green-400"
-                : "text-gray-500 hover:text-gray-300"
-            }`}
-          >
-            🎮 Playground
-            {activeSection === "playground" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-green-400 to-emerald-400" />
-            )}
-          </button>
-          <button
-            onClick={() => setActiveSection("upload")}
-            className={`px-6 py-3 font-semibold transition-all relative ${
-              activeSection === "upload"
-                ? "text-blue-400"
-                : "text-gray-500 hover:text-gray-300"
-            }`}
-          >
-            📤 Upload Your Own
-            {activeSection === "upload" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-400 to-cyan-400" />
-            )}
-          </button>
-        </div>
+      {/* Playground Section */}
+      <section className="py-20 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-4">Try It Yourself</h2>
+            <p className="text-gray-400 text-lg">
+              Click any sample image below or upload your own satellite imagery
+            </p>
+          </div>
 
-        {/* Playground Section */}
-        {activeSection === "playground" && (
-          <div className="space-y-8 animate-in">
-            <div className="bg-gradient-to-r from-green-900/20 to-emerald-900/20 border border-green-800/30 rounded-2xl p-6">
-              <h2 className="text-2xl font-bold mb-2 text-green-400">
-                🎮 Try Sample Images
-              </h2>
-              <p className="text-gray-400">
-                Drag and drop any sample image to the analysis zone below, or click to analyze instantly!
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              {SAMPLE_IMAGES.map((sample) => (
-                <div
-                  key={sample.id}
-                  draggable={!loading}
-                  onDragStart={(e) => {
-                    e.dataTransfer.setData("sample", sample.file);
-                    e.dataTransfer.effectAllowed = "copy";
+          {/* Sample Images Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-12">
+            {SAMPLE_IMAGES.map((sample) => (
+              <button
+                key={sample.id}
+                onClick={() => !loading && analyzeImage(sample.file)}
+                disabled={loading}
+                className="group relative overflow-hidden rounded-2xl transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent z-10" />
+                <img 
+                  src={sample.preview} 
+                  alt={sample.name}
+                  className="w-full h-48 object-cover"
+                  onError={(e) => {
+                    const parent = e.currentTarget.parentElement;
+                    if (parent) {
+                      parent.innerHTML = `<div class="w-full h-48 bg-slate-800 flex items-center justify-center text-5xl">${sample.emoji}</div>`;
+                    }
                   }}
-                  onClick={() => !loading && analyzeImage(sample.file)}
-                  className="group bg-gradient-to-br from-slate-900/80 to-blue-900/40 border-2 border-gray-800 hover:border-green-500 rounded-2xl overflow-hidden transition-all hover:scale-105 hover:shadow-xl hover:shadow-green-500/20 cursor-move"
-                  style={{ opacity: loading ? 0.5 : 1, cursor: loading ? 'not-allowed' : 'move' }}
-                >
-                  {/* Image Preview */}
-                  <div className="relative w-full h-32 bg-gray-800 overflow-hidden">
-                    <img 
-                      src={sample.preview} 
-                      alt={sample.name}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        // Fallback to emoji if image fails to load
-                        e.currentTarget.style.display = 'none';
-                        const parent = e.currentTarget.parentElement;
-                        if (parent) {
-                          parent.innerHTML = `<div class="w-full h-full flex items-center justify-center text-4xl">${sample.emoji}</div>`;
-                        }
-                      }}
-                    />
+                />
+                <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
+                  <p className="text-sm font-semibold text-white mb-1">{sample.name}</p>
+                  <div className="text-xs text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                    Click to analyze →
                   </div>
-                  
-                  {/* Info */}
-                  <div className="p-3">
-                    <p className="text-sm font-semibold text-white mb-1">
-                      {sample.name}
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* Upload Zone */}
+          <div
+            {...getRootProps()}
+            className={`relative overflow-hidden rounded-3xl border-2 border-dashed transition-all cursor-pointer ${
+              isDragActive
+                ? "border-emerald-400 bg-emerald-500/5"
+                : "border-white/10 hover:border-white/20 bg-slate-900/30"
+            }`}
+          >
+            <input {...getInputProps()} />
+            <div className="p-16 text-center">
+              {loading ? (
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                  <p className="text-gray-400 text-lg">Analyzing crop health...</p>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-20 h-20 bg-gradient-to-br from-emerald-500/20 to-blue-500/20 rounded-2xl flex items-center justify-center text-4xl backdrop-blur-sm">
+                    📤
+                  </div>
+                  <div>
+                    <p className="text-xl font-semibold text-white mb-2">
+                      {isDragActive ? "Drop your image here" : "Upload Your Own Image"}
                     </p>
-                    <div className="text-xs text-green-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                      Drag or click to analyze →
-                    </div>
+                    <p className="text-gray-400">
+                      Drag and drop or click to browse • Supports JPG, PNG, TIF
+                    </p>
                   </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Drop Zone for Samples */}
-            <div
-              onDragOver={(e) => {
-                e.preventDefault();
-                e.currentTarget.classList.add("border-green-400", "bg-green-950/30");
-              }}
-              onDragLeave={(e) => {
-                e.currentTarget.classList.remove("border-green-400", "bg-green-950/30");
-              }}
-              onDrop={(e) => {
-                e.preventDefault();
-                e.currentTarget.classList.remove("border-green-400", "bg-green-950/30");
-                const sampleFile = e.dataTransfer.getData("sample");
-                if (sampleFile && !loading) {
-                  analyzeImage(sampleFile);
-                }
-              }}
-              className="border-2 border-dashed border-gray-700 rounded-2xl p-12 text-center transition-all duration-200"
-            >
-              {loading ? (
-                <div className="flex flex-col items-center gap-4">
-                  <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
-                  <p className="text-gray-400">🧠 AI is analyzing crop health...</p>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center gap-3">
-                  <div className="w-16 h-16 bg-gradient-to-br from-green-900 to-emerald-900 rounded-2xl flex items-center justify-center text-3xl">
-                    🎯
-                  </div>
-                  <p className="text-white font-medium">
-                    Drop a sample image here to analyze
-                  </p>
-                  <p className="text-gray-500 text-sm">
-                    Or click any sample card above for instant analysis
-                  </p>
                 </div>
               )}
             </div>
           </div>
-        )}
 
-        {/* Upload Section */}
-        {activeSection === "upload" && (
-          <div className="animate-in">
-            <div className="bg-gradient-to-r from-blue-900/20 to-cyan-900/20 border border-blue-800/30 rounded-2xl p-6 mb-8">
-              <h2 className="text-2xl font-bold mb-2 text-blue-400">
-                📤 Upload Your Own Image
-              </h2>
-              <p className="text-gray-400">
-                Upload your own satellite or aerial imagery to generate professional NDVI crop health maps.
-              </p>
+          {/* Error */}
+          {error && (
+            <div className="mt-6 bg-red-500/10 border border-red-500/20 rounded-2xl p-4 text-red-400 text-center">
+              ⚠️ {error}
             </div>
+          )}
+        </div>
+      </section>
 
-            <div
-              {...getRootProps()}
-              className={`
-                border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer
-                transition-all duration-200
-                ${
-                  isDragActive
-                    ? "border-blue-400 bg-blue-950/30"
-                    : "border-gray-700 hover:border-gray-500 bg-gray-900/50"
-                }
-              `}
-            >
-              <input {...getInputProps()} />
-
-              {loading ? (
-                <div className="flex flex-col items-center gap-4">
-                  <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
-                  <p className="text-gray-400">🧠 AI is analyzing crop health...</p>
-                </div>
-              ) : preview && !result ? (
-                <div className="flex flex-col items-center gap-3">
-                  <img
-                    src={preview}
-                    alt="preview"
-                    className="w-48 h-48 object-cover rounded-xl"
-                  />
-                  <p className="text-gray-500 text-sm">Processing...</p>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center gap-3">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-900 to-slate-900 rounded-2xl flex items-center justify-center text-3xl">
-                    🛰️
-                  </div>
-                  <p className="text-white font-medium">
-                    {isDragActive
-                      ? "Drop your farm image here"
-                      : "Drop a farm image or click to upload"}
-                  </p>
-                  <p className="text-gray-500 text-sm">
-                    Supports JPG, PNG, TIF — drone or satellite imagery
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Error */}
-        {error && (
-          <div className="bg-red-950/50 border border-red-800 rounded-xl p-4 mt-8 text-red-400 text-sm animate-in">
-            ⚠️ {error}
-          </div>
-        )}
-
-        {/* Results */}
-        {result && (
-          <div className="space-y-8 mt-12 animate-in">
-            <div className="bg-gradient-to-r from-green-900/20 to-emerald-900/20 border border-green-800/30 rounded-2xl p-6">
-              <h2 className="text-2xl font-bold text-green-400">📊 Analysis Results</h2>
+      {/* Results Section */}
+      {result && (
+        <section className="py-20 px-6 animate-in fade-in duration-700">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold mb-4">Analysis Complete</h2>
+              <p className="text-gray-400 text-lg">Here's what we found</p>
             </div>
 
             {/* Image Comparison */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-gradient-to-br from-slate-900/80 to-blue-900/40 rounded-2xl overflow-hidden border border-gray-800">
-                <div className="px-4 py-3 border-b border-gray-800 bg-slate-900/50">
-                  <p className="text-sm font-semibold text-gray-300">🛰️ Input RGB Satellite Image</p>
+            <div className="grid md:grid-cols-2 gap-6 mb-12">
+              <div className="relative group overflow-hidden rounded-3xl bg-slate-900/50 border border-white/10">
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent z-10" />
+                <div className="p-4 relative z-20">
+                  <p className="text-sm font-semibold text-gray-400 mb-3">Original RGB Image</p>
                 </div>
                 <img
                   src={`data:image/png;base64,${result.original_image}`}
                   alt="Original"
-                  className="w-full h-72 object-cover"
+                  className="w-full h-96 object-cover"
                 />
               </div>
 
-              <div className="bg-gradient-to-br from-slate-900/80 to-green-900/40 rounded-2xl overflow-hidden border border-gray-800">
-                <div className="px-4 py-3 border-b border-gray-800 bg-slate-900/50">
-                  <p className="text-sm font-semibold text-gray-300">
-                    🌿 Generated NDVI Health Map
-                  </p>
+              <div className="relative group overflow-hidden rounded-3xl bg-slate-900/50 border border-emerald-500/30">
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent z-10" />
+                <div className="p-4 relative z-20">
+                  <p className="text-sm font-semibold text-emerald-400 mb-3">NDVI Health Map</p>
                 </div>
                 <img
                   src={`data:image/png;base64,${result.ndvi_image}`}
                   alt="NDVI"
-                  className="w-full h-72 object-cover"
+                  className="w-full h-96 object-cover"
                 />
               </div>
             </div>
 
-            {/* Health Score Card */}
-            <div className="bg-gradient-to-br from-slate-900/80 to-blue-900/40 rounded-2xl border border-gray-800 p-6">
-              <div className="flex items-start justify-between mb-6">
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">Overall Health Score</p>
-                  <p className={`text-5xl font-bold ${statusColors[result.health.color]}`}>
-                    {result.health.score}
-                    <span className="text-2xl text-gray-500">%</span>
-                  </p>
-                </div>
-                <div
-                  className={`px-4 py-2 rounded-full text-sm font-medium
-                  ${
-                    result.health.color === "green"
-                      ? "bg-green-950 text-green-400 border border-green-800"
-                      : result.health.color === "yellow"
-                      ? "bg-yellow-950 text-yellow-400 border border-yellow-800"
-                      : "bg-red-950 text-red-400 border border-red-800"
-                  }
-                `}
-                >
-                  {result.health.status}
-                </div>
-              </div>
-
-              <p className="text-gray-300 mb-6">{result.health.message}</p>
-
-              {/* Zone Bars */}
-              <div className="space-y-3">
-                <p className="text-xs text-gray-500 uppercase tracking-wider">
-                  Zone Breakdown
-                </p>
-                {(["healthy", "moderate", "stressed"] as const).map((zone) => (
-                  <div key={zone} className="flex items-center gap-3">
-                    <span className="text-sm text-gray-400 w-20 capitalize">{zone}</span>
-                    <div className="flex-1 bg-gray-800 rounded-full h-2">
-                      <div
-                        className={`h-2 rounded-full ${zoneBg[zone]} transition-all duration-700`}
-                        style={{ width: `${result.health.zones[zone]}%` }}
-                      />
-                    </div>
-                    <span className="text-sm text-gray-400 w-12 text-right">
-                      {result.health.zones[zone]}%
-                    </span>
+            {/* Health Score */}
+            <div className="relative overflow-hidden rounded-3xl bg-slate-900/50 border border-white/10 p-8 mb-12">
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent" />
+              <div className="relative z-10">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
+                  <div>
+                    <p className="text-gray-400 text-sm mb-2">Overall Health Score</p>
+                    <p className={`text-6xl font-bold ${statusColors[result.health.color]}`}>
+                      {result.health.score}%
+                    </p>
                   </div>
-                ))}
+                  <div className={`px-6 py-3 rounded-full text-sm font-semibold ${
+                    result.health.color === "green"
+                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                      : result.health.color === "yellow"
+                      ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                      : "bg-red-500/20 text-red-400 border border-red-500/30"
+                  }`}>
+                    {result.health.status}
+                  </div>
+                </div>
+
+                <p className="text-gray-300 text-lg mb-8">{result.health.message}</p>
+
+                {/* Zone Breakdown */}
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-400 uppercase tracking-wider font-semibold">
+                    Vegetation Zones
+                  </p>
+                  {(["healthy", "moderate", "stressed"] as const).map((zone) => (
+                    <div key={zone} className="flex items-center gap-4">
+                      <span className="text-sm text-gray-300 w-24 capitalize font-medium">
+                        {zone}
+                      </span>
+                      <div className="flex-1 bg-slate-800 rounded-full h-3 overflow-hidden">
+                        <div
+                          className={`h-3 rounded-full ${zoneBg[zone]} transition-all duration-1000`}
+                          style={{ width: `${result.health.zones[zone]}%` }}
+                        />
+                      </div>
+                      <span className="text-sm text-gray-400 w-16 text-right font-mono">
+                        {result.health.zones[zone]}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Model Info */}
-            <div className="grid grid-cols-3 gap-4">
-              {[
-                { label: "Model", value: result.model_info.name, icon: "🤖" },
-                { label: "Accuracy", value: result.model_info.accuracy, icon: "🎯" },
-                { label: "Trained On", value: result.model_info.trained_on, icon: "📊" },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="bg-gradient-to-br from-slate-900/80 to-blue-900/40 border border-gray-800 rounded-xl p-4 text-center"
-                >
-                  <div className="text-2xl mb-2">{item.icon}</div>
-                  <p className="text-xs text-gray-500 mb-1">{item.label}</p>
-                  <p className="text-sm text-white font-medium">{item.value}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Analyze Another */}
+            {/* Action Button */}
             <div className="text-center">
               <button
                 onClick={() => {
                   setResult(null);
                   setPreview(null);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className="px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 rounded-xl text-sm font-semibold transition-all hover:scale-105 shadow-lg shadow-green-500/30"
+                className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 rounded-xl font-semibold transition-all hover:scale-105 shadow-lg shadow-emerald-500/30"
               >
-                Analyze Another Field →
+                Analyze Another Image
               </button>
             </div>
           </div>
-        )}
+        </section>
+      )}
 
-        {/* Footer */}
-        <div className="mt-20 bg-gradient-to-br from-slate-900/80 to-blue-900/40 border border-gray-800 rounded-2xl p-8 text-center">
-          <h3 className="text-2xl font-bold mb-3 bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
-            About NDVI.AI
-          </h3>
-          <p className="text-gray-400 max-w-3xl mx-auto mb-6 leading-relaxed">
-            NDVI.AI uses state-of-the-art deep learning to transform RGB satellite imagery
-            into precise NDVI vegetation health maps. Our Pix2Pix model is trained on 2,200
-            Sentinel-2 image pairs, delivering professional-grade crop health analysis in
-            seconds.
-          </p>
-          <div className="flex flex-wrap justify-center gap-3">
-            {["🔒 Secure", "⚡ Fast", "🎯 Accurate", "🌍 Satellite-Grade"].map((badge) => (
+      {/* Footer */}
+      <footer className="py-20 px-6 border-t border-white/5">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h3 className="text-3xl font-bold mb-4">
+              Precision Agriculture, Powered by AI
+            </h3>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed">
+              NDVI.AI uses state-of-the-art deep learning trained on thousands of Sentinel-2 
+              satellite images to deliver professional-grade crop health analysis instantly.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-4 mb-12">
+            {["Secure", "Fast", "Accurate", "Satellite-Grade"].map((badge) => (
               <span
                 key={badge}
-                className="px-4 py-2 bg-gradient-to-r from-green-900/50 to-emerald-900/50 border border-green-800/50 rounded-full text-sm font-medium text-green-400"
+                className="px-4 py-2 bg-slate-900/50 border border-white/10 rounded-full text-sm text-gray-300"
               >
                 {badge}
               </span>
             ))}
           </div>
-          <p className="text-gray-500 text-sm mt-8">
-            © 2026 NDVI.AI - Advanced Crop Health Intelligence Platform
-          </p>
-          <p className="text-gray-600 text-xs mt-2">
-            Powered by PyTorch • Sentinel-2 Data • Deep Learning
-          </p>
+
+          <div className="text-center text-gray-500 text-sm">
+            <p>© 2026 NDVI.AI • Advanced Crop Health Intelligence Platform</p>
+          </div>
         </div>
-      </div>
+      </footer>
     </main>
   );
 }

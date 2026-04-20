@@ -4,23 +4,36 @@
 
 @layer base {
   body {
-    @apply bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950;
+    @apply bg-slate-950 text-white antialiased;
   }
 }
 
 @layer utilities {
   .animate-in {
+    animation: fadeInUp 0.6s ease-out;
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .fade-in {
     animation: fadeIn 0.5s ease-in;
   }
   
   @keyframes fadeIn {
     from {
       opacity: 0;
-      transform: translateY(10px);
     }
     to {
       opacity: 1;
-      transform: translateY(0);
     }
   }
 }
