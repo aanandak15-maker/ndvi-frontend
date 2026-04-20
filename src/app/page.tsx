@@ -27,14 +27,13 @@ interface AnalysisResult {
   };
 }
 
-// Sample images for playground - served via conversion API
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// Sample images for playground - use static images from public folder
 const SAMPLE_IMAGES = [
-  { id: 1, name: "Agricultural Field", file: `${API_URL}/samples/1`, preview: `${API_URL}/samples/1`, emoji: "🌾" },
-  { id: 2, name: "Mixed Vegetation", file: `${API_URL}/samples/2`, preview: `${API_URL}/samples/2`, emoji: "🌿" },
-  { id: 3, name: "Crop Rotation", file: `${API_URL}/samples/3`, preview: `${API_URL}/samples/3`, emoji: "🌱" },
-  { id: 4, name: "Dense Farmland", file: `${API_URL}/samples/4`, preview: `${API_URL}/samples/4`, emoji: "🚜" },
-  { id: 5, name: "Varied Terrain", file: `${API_URL}/samples/5`, preview: `${API_URL}/samples/5`, emoji: "🗺️" },
+  { id: 1, name: "Agricultural Field", file: "/samples/sample1.png", preview: "/samples/sample1.png", emoji: "🌾" },
+  { id: 2, name: "Mixed Vegetation", file: "/samples/sample2.png", preview: "/samples/sample2.png", emoji: "🌿" },
+  { id: 3, name: "Crop Rotation", file: "/samples/sample3.png", preview: "/samples/sample3.png", emoji: "🌱" },
+  { id: 4, name: "Dense Farmland", file: "/samples/sample4.png", preview: "/samples/sample4.png", emoji: "🚜" },
+  { id: 5, name: "Varied Terrain", file: "/samples/sample5.png", preview: "/samples/sample5.png", emoji: "🗺️" },
 ];
 
 export default function Home() {
