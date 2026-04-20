@@ -49,6 +49,7 @@ models/*.pth
 # Data files
 *.tif
 *.tiff
+!public/samples/*.tif
 Main Folder/
 
 # Output files

@@ -29,11 +29,11 @@ interface AnalysisResult {
 
 // Sample images for playground
 const SAMPLE_IMAGES = [
-  { id: 1, name: "Agricultural Field", file: "0B.tif", emoji: "🌾" },
-  { id: 2, name: "Mixed Vegetation", file: "1B.tif", emoji: "🌿" },
-  { id: 3, name: "Crop Rotation", file: "3B.tif", emoji: "🌱" },
-  { id: 4, name: "Dense Farmland", file: "23A.tif", emoji: "🚜" },
-  { id: 5, name: "Varied Terrain", file: "34A.tif", emoji: "🗺️" },
+  { id: 1, name: "Agricultural Field", file: "/samples/sample1.tif", preview: "/samples/sample1.tif", emoji: "🌾" },
+  { id: 2, name: "Mixed Vegetation", file: "/samples/sample2.tif", preview: "/samples/sample2.tif", emoji: "🌿" },
+  { id: 3, name: "Crop Rotation", file: "/samples/sample3.tif", preview: "/samples/sample3.tif", emoji: "🌱" },
+  { id: 4, name: "Dense Farmland", file: "/samples/sample4.tif", preview: "/samples/sample4.tif", emoji: "🚜" },
+  { id: 5, name: "Varied Terrain", file: "/samples/sample5.tif", preview: "/samples/sample5.tif", emoji: "🗺️" },
 ];
 
 export default function Home() {
@@ -52,37 +52,30 @@ export default function Home() {
       const form = new FormData();
       
       if (typeof file === "string") {
-        // Sample image - fetch from backend
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-        const res = await fetch(`${apiUrl}/analyze-sample`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sample: file }),
-        });
-        const data = await res.json();
-        
-        if (data.success) {
-          setResult(data);
-        } else {
-          setError(data.error || "Analysis failed");
-        }
+        // Sample image - fetch from public folder and convert to File
+        const response = await fetch(file);
+        const blob = await response.blob();
+        const fileName = file.split('/').pop() || 'sample.tif';
+        const imageFile = new File([blob], fileName, { type: blob.type });
+        form.append("file", imageFile);
       } else {
         // User uploaded file
         form.append("file", file);
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/analyze";
-        const res = await fetch(apiUrl, {
-          method: "POST",
-          body: form,
-        });
-        const data = await res.json();
-        
-        if (data.success) {
-          setResult(data);
-        } else {
-          setError(data.error || "Analysis failed");
-        }
       }
-    } catch {
+      
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/analyze";
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        body: form,
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        setResult(data);
+      } else {
+        setError(data.error || "Analysis failed");
+      }
+    } catch (err) {
       setError("Cannot connect to AI server. Make sure backend is running.");
     } finally {
       setLoading(false);
@@ -215,15 +208,34 @@ export default function Home() {
                     e.dataTransfer.effectAllowed = "copy";
                   }}
                   onClick={() => !loading && analyzeImage(sample.file)}
-                  className="group bg-gradient-to-br from-slate-900/80 to-blue-900/40 border-2 border-gray-800 hover:border-green-500 rounded-2xl p-4 transition-all hover:scale-105 hover:shadow-xl hover:shadow-green-500/20 cursor-move disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="group bg-gradient-to-br from-slate-900/80 to-blue-900/40 border-2 border-gray-800 hover:border-green-500 rounded-2xl overflow-hidden transition-all hover:scale-105 hover:shadow-xl hover:shadow-green-500/20 cursor-move"
+                  style={{ opacity: loading ? 0.5 : 1, cursor: loading ? 'not-allowed' : 'move' }}
                 >
-                  <div className="text-4xl mb-3">{sample.emoji}</div>
-                  <p className="text-sm font-semibold text-white mb-1">
-                    Sample {sample.id}
-                  </p>
-                  <p className="text-xs text-gray-400">{sample.name}</p>
-                  <div className="mt-3 text-xs text-green-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                    Drag or click to analyze →
+                  {/* Image Preview */}
+                  <div className="relative w-full h-32 bg-gray-800 overflow-hidden">
+                    <img 
+                      src={sample.preview} 
+                      alt={sample.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        // Fallback to emoji if image fails to load
+                        e.currentTarget.style.display = 'none';
+                        const parent = e.currentTarget.parentElement;
+                        if (parent) {
+                          parent.innerHTML = `<div class="w-full h-full flex items-center justify-center text-4xl">${sample.emoji}</div>`;
+                        }
+                      }}
+                    />
+                  </div>
+                  
+                  {/* Info */}
+                  <div className="p-3">
+                    <p className="text-sm font-semibold text-white mb-1">
+                      {sample.name}
+                    </p>
+                    <div className="text-xs text-green-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Drag or click to analyze →
+                    </div>
                   </div>
                 </div>
               ))}
