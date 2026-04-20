@@ -197,7 +197,7 @@ async def analyze_image(file: UploadFile = File(...)):
             "health": health_metrics,
             "model_info": {
                 "name": "Pix2Pix U-Net Generator",
-                "accuracy": "99.2%",
+                "accuracy": "~86.6% (approximate NDVI)",
                 "trained_on": "2,200 Sentinel-2 image pairs"
             }
         })

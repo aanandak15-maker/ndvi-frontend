@@ -101,7 +101,10 @@ export default function Home() {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { "image/*": [".jpg", ".jpeg", ".png", ".tif", ".tiff"] },
+    accept: { 
+      "image/*": [".jpg", ".jpeg", ".png", ".tif", ".tiff"],
+      "image/tiff": [".tif", ".tiff"]
+    },
     multiple: false,
   });
 
@@ -156,20 +159,20 @@ export default function Home() {
             Transform Satellite Images
             <br />
             <span className="bg-gradient-to-r from-emerald-400 via-green-400 to-emerald-500 bg-clip-text text-transparent">
-              Into Crop Health Insights
+              Into NDVI-like Health Maps
             </span>
           </h1>
           
           <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-12 leading-relaxed">
-            Advanced AI converts RGB satellite imagery into professional NDVI vegetation health maps in seconds.
-            No multispectral camera required.
+            AI-powered tool converts RGB satellite imagery into approximate NDVI vegetation health maps. 
+            Results are NDVI-like estimates, not exact multispectral NDVI measurements.
           </p>
 
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto mb-16">
             {[
               { value: "2,200+", label: "Training Images" },
-              { value: "99.2%", label: "Accuracy" },
+              { value: "~86.6%", label: "Model Accuracy" },
               { value: "Sentinel-2", label: "Data Source" },
               { value: "<2s", label: "Processing Time" },
             ].map((stat, i) => (
@@ -252,7 +255,10 @@ export default function Home() {
                       {isDragActive ? "Drop your image here" : "Upload Your Own Image"}
                     </p>
                     <p className="text-gray-400">
-                      Drag and drop or click to browse • Supports JPG, PNG, TIF
+                      Drag and drop or click to browse • Supports JPG, PNG, <strong>TIF/TIFF</strong>
+                    </p>
+                    <p className="text-sm text-emerald-400 mt-2">
+                      ✨ TIFF files are automatically converted for analysis
                     </p>
                   </div>
                 </div>
@@ -275,7 +281,7 @@ export default function Home() {
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-4xl font-bold mb-4">Analysis Complete</h2>
-              <p className="text-gray-400 text-lg">Here's what we found</p>
+              <p className="text-gray-400 text-lg">AI-generated NDVI-like health map (approximate, not exact multispectral NDVI)</p>
             </div>
 
             {/* Image Comparison */}
@@ -295,7 +301,7 @@ export default function Home() {
               <div className="relative group overflow-hidden rounded-3xl bg-slate-900/50 border border-emerald-500/30">
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent z-10" />
                 <div className="p-4 relative z-20">
-                  <p className="text-sm font-semibold text-emerald-400 mb-3">NDVI Health Map</p>
+                  <p className="text-sm font-semibold text-emerald-400 mb-3">NDVI-like Health Map (Approximate)</p>
                 </div>
                 <img
                   src={`data:image/png;base64,${result.ndvi_image}`}
@@ -379,13 +385,14 @@ export default function Home() {
               Precision Agriculture, Powered by AI
             </h3>
             <p className="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed">
-              NDVI.AI uses state-of-the-art deep learning trained on thousands of Sentinel-2 
-              satellite images to deliver professional-grade crop health analysis instantly.
+              NDVI.AI uses deep learning trained on thousands of Sentinel-2 satellite images 
+              to deliver NDVI-like crop health analysis. Results are approximate estimates 
+              based on RGB imagery, not exact multispectral NDVI measurements.
             </p>
           </div>
 
           <div className="flex flex-wrap justify-center gap-4 mb-12">
-            {["Secure", "Fast", "Accurate", "Satellite-Grade"].map((badge) => (
+            {["~86.6% Accurate", "Fast", "RGB-based", "NDVI-like Output"].map((badge) => (
               <span
                 key={badge}
                 className="px-4 py-2 bg-slate-900/50 border border-white/10 rounded-full text-sm text-gray-300"
