@@ -27,13 +27,14 @@ interface AnalysisResult {
   };
 }
 
-// Sample images for playground
+// Sample images for playground - served via conversion API
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 const SAMPLE_IMAGES = [
-  { id: 1, name: "Agricultural Field", file: "/samples/sample1.tif", preview: "/samples/sample1.tif", emoji: "🌾" },
-  { id: 2, name: "Mixed Vegetation", file: "/samples/sample2.tif", preview: "/samples/sample2.tif", emoji: "🌿" },
-  { id: 3, name: "Crop Rotation", file: "/samples/sample3.tif", preview: "/samples/sample3.tif", emoji: "🌱" },
-  { id: 4, name: "Dense Farmland", file: "/samples/sample4.tif", preview: "/samples/sample4.tif", emoji: "🚜" },
-  { id: 5, name: "Varied Terrain", file: "/samples/sample5.tif", preview: "/samples/sample5.tif", emoji: "🗺️" },
+  { id: 1, name: "Agricultural Field", file: `${API_URL}/samples/1`, preview: `${API_URL}/samples/1`, emoji: "🌾" },
+  { id: 2, name: "Mixed Vegetation", file: `${API_URL}/samples/2`, preview: `${API_URL}/samples/2`, emoji: "🌿" },
+  { id: 3, name: "Crop Rotation", file: `${API_URL}/samples/3`, preview: `${API_URL}/samples/3`, emoji: "🌱" },
+  { id: 4, name: "Dense Farmland", file: `${API_URL}/samples/4`, preview: `${API_URL}/samples/4`, emoji: "🚜" },
+  { id: 5, name: "Varied Terrain", file: `${API_URL}/samples/5`, preview: `${API_URL}/samples/5`, emoji: "🗺️" },
 ];
 
 export default function Home() {
@@ -51,22 +52,27 @@ export default function Home() {
       const form = new FormData();
       
       if (typeof file === "string") {
-        // Sample image - fetch from public folder and convert to File
+        // Sample image - fetch from API and convert to File
         const response = await fetch(file);
         const blob = await response.blob();
-        const fileName = file.split('/').pop() || 'sample.tif';
-        const imageFile = new File([blob], fileName, { type: blob.type });
+        const fileName = `sample_${file.split('/').pop()}.png`;
+        const imageFile = new File([blob], fileName, { type: 'image/png' });
         form.append("file", imageFile);
       } else {
         // User uploaded file
         form.append("file", file);
       }
       
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/analyze";
-      const res = await fetch(apiUrl, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const res = await fetch(`${apiUrl}/analyze`, {
         method: "POST",
         body: form,
       });
+      
+      if (!res.ok) {
+        throw new Error(`API error: ${res.status}`);
+      }
+      
       const data = await res.json();
       
       if (data.success) {
@@ -75,7 +81,8 @@ export default function Home() {
         setError(data.error || "Analysis failed");
       }
     } catch (err) {
-      setError("Cannot connect to AI server. Make sure backend is running.");
+      console.error("Analysis error:", err);
+      setError("Cannot connect to server. Make sure the image server is running on port 8000.");
     } finally {
       setLoading(false);
     }
