@@ -46,15 +46,11 @@ ENV/
 models/*.pth
 *.pth
 
-# Data files - exclude large folders but keep sample images
+# Data files
+*.tif
+*.tiff
+!public/samples/*.tif
 Main Folder/
-# Keep sample TIFF files in root for deployment
-!0B.tif
-!1B.tif
-!3B.tif
-!23A.tif
-!34A.tif
-!9A.tif
 
 # Output files
 outputs/
