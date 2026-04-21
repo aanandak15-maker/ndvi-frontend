@@ -202,49 +202,74 @@ async def analyze_image(file: UploadFile = File(...)):
         JSON with original image, NDVI image, and health metrics
     """
     try:
-        # Load model
-        model = load_model()
-        
-        # Read and validate image
+        # Read and validate image first
         contents = await file.read()
         try:
             rgb_image = Image.open(io.BytesIO(contents)).convert('RGB')
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Invalid image file: {str(e)}")
         
-        # Process image
-        rgb_tensor = preprocess_image(rgb_image).to(device)
-        
-        # Generate NDVI
-        with torch.no_grad():
-            ndvi_tensor = model(rgb_tensor)
-        
-        # Convert NDVI tensor to smooth base64 image
-        ndvi_b64 = tensor_to_base64(ndvi_tensor)
-        
-        # Resize original to match output and convert to base64
+        # Resize original to match output
         rgb_image_resized = rgb_image.resize((256, 256))
         original_b64 = image_to_base64(rgb_image_resized)
         
-        # For health metrics, we need to decode the NDVI image
-        ndvi_image_bytes = base64.b64decode(ndvi_b64)
-        ndvi_image = Image.open(io.BytesIO(ndvi_image_bytes))
-        health_metrics = calculate_health_metrics(ndvi_image)
+        # Try to load model and generate NDVI
+        try:
+            model = load_model()
+            
+            # Process image
+            rgb_tensor = preprocess_image(rgb_image).to(device)
+            
+            # Generate NDVI
+            with torch.no_grad():
+                ndvi_tensor = model(rgb_tensor)
+            
+            # Convert NDVI tensor to smooth base64 image
+            ndvi_b64 = tensor_to_base64(ndvi_tensor)
+            
+            # For health metrics, we need to decode the NDVI image
+            ndvi_image_bytes = base64.b64decode(ndvi_b64)
+            ndvi_image = Image.open(io.BytesIO(ndvi_image_bytes))
+            health_metrics = calculate_health_metrics(ndvi_image)
+            
+            return JSONResponse({
+                "success": True,
+                "original_image": original_b64,
+                "ndvi_image": ndvi_b64,
+                "health": health_metrics,
+                "model_info": {
+                    "name": "Pix2Pix U-Net Generator",
+                    "accuracy": "~86.6% (approximate NDVI)",
+                    "trained_on": "2,200 Sentinel-2 image pairs"
+                }
+            })
+            
+        except FileNotFoundError:
+            # Graceful fallback: model not available
+            return JSONResponse({
+                "success": True,
+                "original_image": original_b64,
+                "ndvi_image": original_b64,  # Return original as fallback
+                "health": {
+                    "score": 0,
+                    "status": "Model Not Available",
+                    "message": "Backend is running but AI model is not loaded. Displaying original image. To enable AI-powered NDVI analysis, upload the model file to the server.",
+                    "color": "gray",
+                    "zones": {
+                        "healthy": 0,
+                        "moderate": 0,
+                        "stressed": 0
+                    }
+                },
+                "model_info": {
+                    "name": "Fallback Mode (No AI)",
+                    "accuracy": "N/A - Model file not found",
+                    "trained_on": "Model not loaded"
+                }
+            })
         
-        return JSONResponse({
-            "success": True,
-            "original_image": original_b64,
-            "ndvi_image": ndvi_b64,
-            "health": health_metrics,
-            "model_info": {
-                "name": "Pix2Pix U-Net Generator",
-                "accuracy": "~86.6% (approximate NDVI)",
-                "trained_on": "2,200 Sentinel-2 image pairs"
-            }
-        })
-        
-    except FileNotFoundError as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
@@ -270,15 +295,19 @@ async def health_check():
 
 @app.on_event("startup")
 async def startup_event():
-    """Load model on startup."""
+    """Load model on startup if available."""
     print("🚀 Starting NDVI.AI API Server...")
     print(f"📱 Device: {device}")
     try:
         load_model()
         print("✅ Model loaded successfully")
+    except FileNotFoundError as e:
+        print(f"⚠️  Model file not found: {e}")
+        print("   Server will run in fallback mode (no AI generation)")
+        print("   Upload models/generator_final.pth to enable AI features")
     except Exception as e:
         print(f"⚠️  Warning: Could not load model: {e}")
-        print("   Model will be loaded on first request")
+        print("   Server will run in fallback mode")
 
 if __name__ == "__main__":
     import uvicorn
