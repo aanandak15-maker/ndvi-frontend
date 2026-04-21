@@ -56,7 +56,16 @@ def load_model():
             raise FileNotFoundError(f"Model not found at {model_path}")
         
         generator = UNetGenerator(in_channels=3, out_channels=3).to(device)
-        generator.load_state_dict(torch.load(model_path, map_location=device))
+        
+        # Load checkpoint - handle both direct state_dict and checkpoint formats
+        checkpoint = torch.load(model_path, map_location=device)
+        if isinstance(checkpoint, dict) and 'generator_state' in checkpoint:
+            # Checkpoint format with metadata
+            generator.load_state_dict(checkpoint['generator_state'])
+        else:
+            # Direct state_dict format
+            generator.load_state_dict(checkpoint)
+        
         generator.eval()
     return generator
 
@@ -73,15 +82,43 @@ def preprocess_image(image: Image.Image) -> torch.Tensor:
     ])
     return transform(image).unsqueeze(0)
 
-def denormalize(tensor: torch.Tensor) -> torch.Tensor:
-    """Convert tensor from [-1, 1] back to [0, 1] for display."""
-    return (tensor + 1) / 2
-
-def tensor_to_image(tensor: torch.Tensor) -> Image.Image:
-    """Convert tensor to PIL Image."""
-    img_array = denormalize(tensor).squeeze().permute(1, 2, 0).cpu().numpy()
-    img_array = np.clip(img_array * 255, 0, 255).astype(np.uint8)
-    return Image.fromarray(img_array)
+def tensor_to_base64(tensor: torch.Tensor) -> str:
+    import cv2
+    import matplotlib.cm as cm
+    
+    # Convert tensor to image
+    img = tensor.squeeze(0).cpu().detach().numpy()
+    img = np.transpose(img, (1, 2, 0))
+    img = np.clip((img * 0.5 + 0.5), 0, 1)
+    
+    # Single channel — weighted green emphasis
+    ndvi = (0.6 * img[:,:,1] + 
+            0.2 * img[:,:,0] + 
+            0.2 * img[:,:,2])
+    
+    # Heavy smooth FIRST — kills the noise before coloring
+    ndvi_smooth = cv2.GaussianBlur(ndvi, (15, 15), 0)
+    
+    # Gentle contrast stretch — DO NOT use percentile clipping
+    # Just normalize to 0-1 range directly
+    mn = ndvi_smooth.min()
+    mx = ndvi_smooth.max()
+    if mx > mn:
+        ndvi_norm = (ndvi_smooth - mn) / (mx - mn)
+    else:
+        ndvi_norm = ndvi_smooth
+    
+    # Apply RdYlGn colormap
+    colormap  = cm.get_cmap('RdYlGn')
+    colored   = colormap(ndvi_norm)
+    colored   = (colored[:, :, :3] * 255).astype(np.uint8)
+    
+    # Light final smooth to blend edges
+    colored = cv2.GaussianBlur(colored, (5, 5), 0)
+    
+    buf = io.BytesIO()
+    Image.fromarray(colored).save(buf, format="PNG")
+    return base64.b64encode(buf.getvalue()).decode()
 
 def image_to_base64(image: Image.Image) -> str:
     """Convert PIL Image to base64 string."""
@@ -177,18 +214,17 @@ async def analyze_image(file: UploadFile = File(...)):
         with torch.no_grad():
             ndvi_tensor = model(rgb_tensor)
         
-        # Convert to images
-        ndvi_image = tensor_to_image(ndvi_tensor)
+        # Convert NDVI tensor to smooth base64 image
+        ndvi_b64 = tensor_to_base64(ndvi_tensor)
         
-        # Resize original to match output
+        # Resize original to match output and convert to base64
         rgb_image_resized = rgb_image.resize((256, 256))
-        
-        # Calculate health metrics
-        health_metrics = calculate_health_metrics(ndvi_image)
-        
-        # Convert to base64
         original_b64 = image_to_base64(rgb_image_resized)
-        ndvi_b64 = image_to_base64(ndvi_image)
+        
+        # For health metrics, we need to decode the NDVI image
+        ndvi_image_bytes = base64.b64decode(ndvi_b64)
+        ndvi_image = Image.open(io.BytesIO(ndvi_image_bytes))
+        health_metrics = calculate_health_metrics(ndvi_image)
         
         return JSONResponse({
             "success": True,
