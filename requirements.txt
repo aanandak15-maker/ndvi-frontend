@@ -6,6 +6,7 @@ torchvision>=0.15.0
 numpy>=1.24.0,<2.0.0
 Pillow>=10.0.0
 opencv-python-headless==4.9.0.80
+scipy>=1.11.0
 
 # Visualization and progress tracking
 matplotlib>=3.7.0
