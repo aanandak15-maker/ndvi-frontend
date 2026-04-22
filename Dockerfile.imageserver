@@ -1,4 +1,4 @@
-# Ultra-minimal Railway deployment - optimized for <4GB
+# Minimal Railway deployment - Image server only (no AI model required)
 FROM python:3.10-slim
 
 WORKDIR /app
@@ -14,13 +14,11 @@ COPY requirements_minimal.txt .
 # Install Python packages with aggressive optimization
 RUN pip install --no-cache-dir -r requirements_minimal.txt
 
-# Copy only essential files
-COPY api_server.py .
-COPY model.py .
-COPY models/ models/
+# Copy only image server (no model needed)
+COPY image_server.py .
 
-# Expose port (Railway will set PORT env var)
+# Expose port
 EXPOSE 8000
 
-# Start server - use shell to properly expand PORT env var
-CMD ["sh", "-c", "uvicorn api_server:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Start image server (no AI model required) - use PORT env var from Railway
+CMD ["sh", "-c", "uvicorn image_server:app --host 0.0.0.0 --port ${PORT:-8000}"]
